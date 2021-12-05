@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aviutl-authentic-grouping", "aviutl-authentic-grouping.vcxproj", "{C5675CD1-3BBF-4C50-AC28-8757C4AB4F3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5675CD1-3BBF-4C50-AC28-8757C4AB4F3C}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5675CD1-3BBF-4C50-AC28-8757C4AB4F3C}.Debug|x86.Build.0 = Debug|Win32
+		{C5675CD1-3BBF-4C50-AC28-8757C4AB4F3C}.Release|x86.ActiveCfg = Release|Win32
+		{C5675CD1-3BBF-4C50-AC28-8757C4AB4F3C}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAFAFFE9-A3FD-49AE-A360-7152562BE737}
+	EndGlobalSection
+EndGlobal

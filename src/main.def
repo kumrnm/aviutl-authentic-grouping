@@ -1,0 +1,4 @@
+LIBRARY authentic_grouping.auf
+
+EXPORTS
+	GetFilterTable @1
