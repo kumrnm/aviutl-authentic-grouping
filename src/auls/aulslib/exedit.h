@@ -384,7 +384,7 @@ struct CACHE_BUFFER {
 struct DISPLAY_RECT {
 	int x, y, width, height;
 	int unknown[3];
-	int object_index; // SortedObjectTable‚Ì“Yš‚Æ‚ÍˆÙ‚È‚éI
+	int object_id;
 	int unknown2[5];
 };
 

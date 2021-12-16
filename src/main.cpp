@@ -27,9 +27,6 @@ void show_error(LPCTSTR text) {
 
 #include "dbgstream/dbgstream.h"
 
-void _DEBUG_INIT(FILTER* exedit) {
-}
-
 void _DEBUG_FUNC() {
 	cdbg << std::flush;
 }
@@ -40,12 +37,6 @@ void _DEBUG_FUNC() {
 //================================
 //  拡張編集のイベントハンドラ
 //================================
-
-// フィルタ（描画）処理
-
-HOOKED(BOOL, , exedit_proc, void* fp, FILTER_PROC_INFO* fpip) {
-	return proc(fp, fpip, exedit_proc_original);
-}
 
 // ウィンドウメッセージ処理
 
@@ -79,13 +70,11 @@ BOOL func_init(FILTER* fp) {
 	else {
 		auls::Memref_Init((FILTER*)fp);
 
-		exedit_proc_original = exedit->func_proc;
-		exedit->func_proc = exedit_proc_hooked;
+		proc_init(fp, exedit);
 
 #ifdef _DEBUG
 		exedit_WndProc_original = exedit->func_WndProc;
 		exedit->func_WndProc = exedit_WndProc_hooked;
-		_DEBUG_INIT(exedit);
 #endif
 	}
 
