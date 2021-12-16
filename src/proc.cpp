@@ -12,7 +12,6 @@ constexpr int LAYER_COUNT = 100;
 //  ユーティリティ
 //================================
 
-
 auls::EXEDIT_OBJECT* get_object(const int scene, const int layer, const int frame) {
 	if (layer < 0 || layer >= LAYER_COUNT) return nullptr;
 
@@ -296,10 +295,8 @@ std::vector<std::vector<int>> get_layer_sections(const int scene, const int fram
 //  描画処理
 //================================
 
-#include "dbgstream/dbgstream.h"
-
 // 内部描画関数の引数
-struct EXEDIT_PAINT_FUNC_ARGS {
+struct EXEDIT_DRAWING_FUNC_ARGS {
 	void* fp; // トップレベル描画でなければNULL
 	FILTER_PROC_INFO* fpip;
 	int layer_limit; // 描画するレイヤーを [0, layer_limit) に制限
@@ -311,7 +308,7 @@ struct EXEDIT_PAINT_FUNC_ARGS {
 
 // 内部描画関数をこれに書き換える
 // （exedit->procの書き換えではシーンチェンジなどに対応できない）
-HOOKED(BOOL, , exedit_drawing_func, EXEDIT_PAINT_FUNC_ARGS args) {
+HOOKED(BOOL, , exedit_drawing_func, EXEDIT_DRAWING_FUNC_ARGS args) {
 	static int recursion_level = 0;
 	static std::unordered_map<int, std::vector<int>> layer_enabled_init;
 
@@ -400,7 +397,7 @@ void proc_init(FILTER* fp, FILTER* exedit) {
 	const DWORD exedit_base = (DWORD)exedit->dll_hinst;
 
 	// 内部描画関数を呼んでいるCALL命令の所在一覧
-	const std::vector<DWORD> paint_func_calls({
+	const std::vector<DWORD> drawing_func_calls({
 		exedit_base + 0x49C10,
 		exedit_base + 0x2AF52,
 		exedit_base + 0x4CDC4,
@@ -409,10 +406,10 @@ void proc_init(FILTER* fp, FILTER* exedit) {
 
 	// 内部描画関数のアドレス
 	// exedit_drawing_func_original = (t_exedit_drawing_func)(exedit_base + 0x48830);
-	exedit_drawing_func_original = (t_exedit_drawing_func)(paint_func_calls[0] + 5 + *(DWORD*)(paint_func_calls[0] + 1)); // 他プラグインとの競合回避
+	exedit_drawing_func_original = (t_exedit_drawing_func)(drawing_func_calls[0] + 5 + *(DWORD*)(drawing_func_calls[0] + 1)); // 他プラグインとの競合回避
 
 	// 内部描画関数をダミーのものに差し替える
-	for (const auto& pt : paint_func_calls) {
+	for (const auto& pt : drawing_func_calls) {
 		// 保護状態変更
 		DWORD dwOldProtect;
 		VirtualProtect((LPVOID)pt, 5, PAGE_READWRITE, &dwOldProtect);

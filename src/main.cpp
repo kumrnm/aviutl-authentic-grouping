@@ -31,27 +31,17 @@ void _DEBUG_FUNC() {
 	cdbg << std::flush;
 }
 
-#endif
-
-
-//================================
-//  拡張編集のイベントハンドラ
-//================================
-
-// ウィンドウメッセージ処理
-
 HOOKED(BOOL, , exedit_WndProc, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, void* editp, void* fp) {
-	// デバッグコマンド（リリース時無効）
-#ifdef _DEBUG
+	// F5キーでデバッグ動作
 	if ((message == WM_KEYUP || message == WM_FILTER_MAIN_KEY_UP) && wparam == VK_F5) {
 		_DEBUG_FUNC();
 		return FALSE;
 	}
-#endif
 
-	auto res = exedit_WndProc_original(hwnd, message, wparam, lparam, editp, fp);
-	return res;
+	return exedit_WndProc_original(hwnd, message, wparam, lparam, editp, fp);
 }
+
+#endif
 
 
 //================================
@@ -59,7 +49,6 @@ HOOKED(BOOL, , exedit_WndProc, HWND hwnd, UINT message, WPARAM wparam, LPARAM lp
 //================================
 
 BOOL func_init(FILTER* fp) {
-	// 拡張編集プラグインのイベントハンドラを差し替える
 	auto exedit = auls::Exedit_GetFilter(fp);
 	if (!exedit) {
 		show_error(TEXT("拡張編集が見つかりませんでした。"));
@@ -69,7 +58,6 @@ BOOL func_init(FILTER* fp) {
 	}
 	else {
 		auls::Memref_Init((FILTER*)fp);
-
 		proc_init(fp, exedit);
 
 #ifdef _DEBUG
