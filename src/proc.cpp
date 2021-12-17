@@ -1,4 +1,5 @@
 #include "aviutl_plugin_sdk/filter.h"
+#include "tchar.h"
 #include "auls/memref.h"
 #include "auls/yulib/extra.h"
 #include <vector>
@@ -86,6 +87,13 @@ bool inline is_group_object(const auls::EXEDIT_OBJECT* obj) {
 
 bool inline is_audio_object(const auls::EXEDIT_OBJECT* obj) {
 	return obj->type == 3;
+}
+
+int sound_wave_object_filter_id = -1;
+
+// 「編集全体の音声を元にする」にチェックが入った音声波形表示
+bool inline is_wide_area_sound_wave_object(const auls::EXEDIT_OBJECT* obj) {
+	return obj->type == 1 && obj->filter_param[0].id == sound_wave_object_filter_id && obj->check_value[3];
 }
 
 // グループの制御レイヤー数を取得する
@@ -260,16 +268,22 @@ std::vector<std::vector<int>> get_layer_sections_from_forest(const LAYER_GROUPIN
 
 	std::vector<std::vector<int>> res;
 
+	int first_audio_section = -1;
+	int first_wave_section = -1;
+
 	for (const auto& section : sections) {
 		std::vector<int> section_layers;
-		int item_count = 0;
 		section.for_each([&](const int layer) {
-			if (forest[layer].active && !forest[layer].is_audio) {
-				section_layers.push_back(layer);
-				if (!forest[layer].is_group) ++item_count;
-			}
+			if (!forest[layer].active) return;
+			if (!forest[layer].is_audio) section_layers.push_back(layer);
+
+			// オーディオ・音声波形表示の位置を記録しておく
+			if (first_audio_section < 0 && forest[layer].is_audio) first_audio_section = res.size();
+			if (first_wave_section < 0 && is_wide_area_sound_wave_object(forest[layer].object)) first_wave_section = res.size();
 			});
-		res.push_back(section_layers);
+		if (!section_layers.empty()) {
+			res.push_back(section_layers);
+		}
 	}
 
 	if (res.empty()) res.push_back(std::vector<int>());
@@ -277,9 +291,10 @@ std::vector<std::vector<int>> get_layer_sections_from_forest(const LAYER_GROUPIN
 	// オーディオレイヤーはいずれかのセクションにまとめる
 	// （音声波形表示は同一セクションの音声しか拾えないため、
 	//　　下手に分割すると一部の音だけが拾われて混乱の元となる。）
+	int audio_section = first_wave_section >= 0 ? first_wave_section : first_audio_section >= 0 ? first_audio_section : 0;
 	for (int layer = 0; layer < LAYER_COUNT; ++layer) {
 		if (forest[layer].active && forest[layer].is_audio) {
-			res[0].push_back(layer);
+			res[audio_section].push_back(layer);
 		}
 	}
 
@@ -420,6 +435,17 @@ void proc_init(FILTER* fp, FILTER* exedit) {
 		// 保護状態復元
 		VirtualProtect((LPVOID)pt, 5, dwOldProtect, &dwOldProtect);
 	}
+
+
+	// 音声波形表示のフィルタIDを取得
+	const auto filters = auls::Exedit_StaticFilterTable();
+	for (int i = 0; filters[i] != NULL; ++i) {
+		if (_tcscmp(filters[i]->name, TEXT("音声波形表示")) == 0) {
+			sound_wave_object_filter_id = i;
+			break;
+		}
+	}
+
 }
 
 
