@@ -2,8 +2,12 @@
 
 #include "aviutl_plugin_sdk/filter.h"
 
-void proc_init(FILTER* fp, FILTER* exedit);
+namespace proc{
+
+	void init(FILTER* fp, FILTER* exedit);
 
 #ifdef _DEBUG
-void proc_debug();
+	void debug();
 #endif
+
+}

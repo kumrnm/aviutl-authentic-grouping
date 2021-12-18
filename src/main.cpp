@@ -58,7 +58,7 @@ BOOL func_init(FILTER* fp) {
 	}
 	else {
 		auls::Memref_Init((FILTER*)fp);
-		proc_init(fp, exedit);
+		proc::init(fp, exedit);
 
 #ifdef _DEBUG
 		exedit_WndProc_original = exedit->func_WndProc;
@@ -75,7 +75,7 @@ BOOL func_init(FILTER* fp) {
 //================================
 
 FILTER_DLL filter = {
-	.flag = FILTER_FLAG_ALWAYS_ACTIVE | FILTER_FLAG_NO_CONFIG | FILTER_FLAG_EX_INFORMATION,
+	.flag = FILTER_FLAG_NO_CONFIG | FILTER_FLAG_EX_INFORMATION,
 	.name = (TCHAR*)PLUGIN_NAME,
 	.func_init = func_init,
 	.information = (TCHAR*)(PLUGIN_NAME TEXT(" v") PLUGIN_VERSION)
