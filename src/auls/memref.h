@@ -35,6 +35,7 @@ def(int*, TraScript_ProcessingTrackBarIndex);
 def(int*, TraScript_ProcessingObjectIndex);
 def(auls::EXEDIT_FILTER*, ScriptProcessingFilter);
 // def(lua_State*,       LuaState);
+def(EXEDIT_OBJECT**, ObjectTable);
 def(void**, ObjectExtraData);
 def(auls::OBJECT_BUFFER_INFO*, ObjectBufferInfo);
 def(auls::CAMERA_ZBUFFER**, CameraZBuffer);

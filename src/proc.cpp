@@ -86,23 +86,35 @@ namespace proc {
 		return nullptr;
 	}
 
-	bool inline is_group_object(const auls::EXEDIT_OBJECT* obj) {
+	auls::EXEDIT_OBJECT* get_object_by_id(const int id) {
+		return *auls::Exedit_ObjectTable() + id;
+	}
+
+	auls::EXEDIT_OBJECT* midpoint_leader(auls::EXEDIT_OBJECT* obj) {
+		return obj->index_midpt_leader < 0 ? obj : get_object_by_id(obj->index_midpt_leader);
+	}
+
+	bool inline is_group_object(auls::EXEDIT_OBJECT* obj) {
+		obj = midpoint_leader(obj);
 		return obj->type == 28;
 	}
 
-	bool inline is_audio_object(const auls::EXEDIT_OBJECT* obj) {
+	bool inline is_audio_object(auls::EXEDIT_OBJECT* obj) {
+		obj = midpoint_leader(obj);
 		return obj->type == 3;
 	}
 
 	int sound_wave_object_filter_id = -1;
 
 	// 「編集全体の音声を元にする」にチェックが入った音声波形表示
-	bool inline is_wide_area_sound_wave_object(const auls::EXEDIT_OBJECT* obj) {
+	bool inline is_wide_area_sound_wave_object(auls::EXEDIT_OBJECT* obj) {
+		obj = midpoint_leader(obj);
 		return obj->type == 1 && obj->filter_param[0].id == sound_wave_object_filter_id && obj->check_value[3];
 	}
 
 	// グループの制御レイヤー数を取得する
-	int inline get_group_size(const auls::EXEDIT_OBJECT* group_obj) {
+	int inline get_group_size(auls::EXEDIT_OBJECT* group_obj) {
+		group_obj = midpoint_leader(group_obj);
 		int res = *((unsigned char*)(*auls::Exedit_ObjectExtraData()) + group_obj->exdata_offset + 4);
 		if (res == 0) res = LAYER_COUNT;
 		return res;

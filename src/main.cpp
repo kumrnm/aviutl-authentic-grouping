@@ -11,7 +11,7 @@
 #else
 #define PLUGIN_NAME TEXT("真・グループ制御")
 #endif
-#define PLUGIN_VERSION TEXT("1.0.0")
+#define PLUGIN_VERSION TEXT("1.0.1")
 
 
 void show_error(LPCTSTR text) {
