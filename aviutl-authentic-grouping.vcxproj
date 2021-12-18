@@ -92,7 +92,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp20</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
     </ClCompile>
@@ -100,22 +100,40 @@
       <ModuleDefinitionFile>src\main.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(AVIUTLDIR)</Command>
+      <Command>copy $(TargetPath) $(AVIUTLDIR)plugins\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\auls\memref.cpp" />
+    <ClCompile Include="src\auls\yulib\extra.cpp" />
+    <ClCompile Include="src\dbgstream\dbgstream.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\stdafx.cpp">
-      <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="src\proc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\main.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\filter.h" />
-    <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\auls\aulslib\aviutl.h" />
+    <ClInclude Include="src\auls\aulslib\exedit.h" />
+    <ClInclude Include="src\auls\memref.h" />
+    <ClInclude Include="src\dbgstream\dbgstream.h" />
+    <ClInclude Include="src\aviutl_plugin_sdk\filter.h" />
+    <ClInclude Include="src\auls\yulib\color.h" />
+    <ClInclude Include="src\auls\yulib\extra.h" />
+    <ClInclude Include="src\auls\yulib\file.h" />
+    <ClInclude Include="src\auls\yulib\gdi.h" />
+    <ClInclude Include="src\auls\yulib\generic.h" />
+    <ClInclude Include="src\auls\yulib\memory.h" />
+    <ClInclude Include="src\auls\yulib\path.h" />
+    <ClInclude Include="src\auls\yulib\string.h" />
+    <ClInclude Include="src\auls\yulib\window.h" />
+    <ClInclude Include="src\debug_util.h" />
+    <ClInclude Include="src\proc.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\auls\auls.txt" />
+    <Text Include="src\dbgstream\LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
