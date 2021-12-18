@@ -169,7 +169,7 @@ namespace proc {
 			std::stack<std::tuple<int, int, bool> /* layer, depth, is_last */> st;
 			st.emplace(i, 0, true);
 			while (!st.empty()) {
-				const auto& [layer, depth, is_last] = st.top();
+				const auto [layer, depth, is_last] = st.top();
 				st.pop();
 				seen[layer] = true;
 				const auto& node = forest[layer];
@@ -249,12 +249,13 @@ namespace proc {
 		// レイヤー順に走査（=木に対してDFS）
 
 		std::vector<bool> layer_seen(LAYER_COUNT);
+		std::vector<int> parent(LAYER_COUNT, -1);
 		for (int root = 0; root < LAYER_COUNT; ++root) {
 			if (layer_seen[root] || !forest[root].active) continue;
-			std::vector<int> layer_stack;
-			layer_stack.push_back(root);
+			std::stack<int> layer_stack;
+			layer_stack.push(root);
 			while (!layer_stack.empty()) {
-				const auto layer = *layer_stack.rbegin();
+				const auto layer = layer_stack.top();
 				layer_seen[layer] = true;
 				const auto& children = forest[layer].children;
 
@@ -263,26 +264,32 @@ namespace proc {
 				// セクション分割によって対処する
 
 				for (unsigned int i = 0; i < children.size(); ++i) {
+					
+					const auto c_layer = children[i];
+					parent[c_layer] = layer;
+
 					if (i > 0 && forest[children[i - 1]].is_group) {
 						// ==== セクション分割 ====
-
-						const auto c_layer = children[i];
 
 						// 現在のレイヤーで上下に分ける
 						sections.rbegin()->end = c_layer;
 						LAYER_SECTION new_section(c_layer, LAYER_COUNT);
 
 						// 祖先のグループ制御は有効にする
-						for (const auto& ancestor : layer_stack) {
-							new_section.additional_layers.push_back(ancestor);
+						auto pos = c_layer;
+						while (parent[pos] >= 0) {
+							pos = parent[pos];
+							new_section.additional_layers.push_back(pos);
 						}
 
 						sections.push_back(new_section);
 					}
 				}
 
-				layer_stack.pop_back();
-				for (auto p = children.rbegin(); p != children.rend(); ++p) layer_stack.push_back(*p);
+				layer_stack.pop();
+				for (auto p = children.rbegin(); p != children.rend(); ++p) {
+					layer_stack.push(*p);
+				}
 			}
 		}
 
