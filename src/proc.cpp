@@ -6,6 +6,11 @@
 #include <stack>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
+
+#ifdef _DEBUG
+#include "dbgstream/dbgstream.h"
+#endif
 
 namespace proc {
 
@@ -327,6 +332,35 @@ namespace proc {
 	//  描画処理
 	//================================
 
+	// DisplayRects合成関数
+	std::vector<auls::DISPLAY_RECT> merge_display_rects(const std::vector<std::vector<auls::DISPLAY_RECT>> section_display_rects) {
+		// 【注意】総数が256を超えるとバグる
+		const unsigned int MAX_RECT_COUNT = 256;
+
+		std::vector<auls::DISPLAY_RECT> res;
+
+		std::unordered_set<int> added_object_ids;
+
+		for (const auto& section_display_rect : section_display_rects) {
+			std::unordered_set<int> section_object_ids;
+
+			for (const auto& rect : section_display_rect) {
+				// 以前のセクションで追加されているオブジェクトのものはパス
+				if (added_object_ids.contains(rect.object_id)) continue;
+
+				section_object_ids.insert(rect.object_id);
+
+				res.push_back(rect);
+				if (res.size() >= MAX_RECT_COUNT) goto break_for;
+			}
+
+			for (const auto id : section_object_ids) added_object_ids.insert(id);
+		}
+	break_for:
+
+		return res;
+	}
+
 	// 内部描画関数の引数
 	struct EXEDIT_DRAWING_FUNC_ARGS {
 		void* fp; // トップレベル描画でなければNULL
@@ -384,7 +418,7 @@ namespace proc {
 				set_layer_enabled(scene, layer, false);
 			}
 
-			std::vector<auls::DISPLAY_RECT> display_rects;
+			std::vector<std::vector<auls::DISPLAY_RECT>> section_display_rects;
 
 			// 描画
 			for (const auto& section : sections) {
@@ -395,17 +429,22 @@ namespace proc {
 				for (const auto& layer : section) set_layer_enabled(scene, layer, false);
 
 				if (recursion_level == 0) {
+					// 編集枠を記録
+					std::vector<auls::DISPLAY_RECT> section_display_rect;
 					for (int i = 0; i < *auls::Exedit_DisplayRectsCount(); ++i) {
-						display_rects.push_back(auls::Exedit_DisplayRects()[i]);
+						section_display_rect.push_back(auls::Exedit_DisplayRects()[i]);
 					}
+					section_display_rects.push_back(section_display_rect);
 				}
 			}
 
 			// メインウィンドウ上の編集枠を全セクション分まとめる（トップレベル時のみ）
 			if (recursion_level == 0) {
-				*auls::Exedit_DisplayRectsCount() = display_rects.size();
-				for (unsigned int i = 0; i < display_rects.size(); ++i) {
-					auls::Exedit_DisplayRects()[i] = display_rects[i];
+				const auto merged_display_rects = merge_display_rects(section_display_rects);
+				const auto rects_count = merged_display_rects.size();
+				*auls::Exedit_DisplayRectsCount() = rects_count;
+				for (unsigned int i = 0; i < rects_count; ++i) {
+					auls::Exedit_DisplayRects()[i] = merged_display_rects[i];
 				}
 			}
 		}
@@ -479,9 +518,8 @@ namespace proc {
 
 #ifdef _DEBUG
 
-#include "dbgstream/dbgstream.h"
-
 	void debug() {
+		cdbg << std::flush;
 	}
 
 #endif
