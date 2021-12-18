@@ -35,6 +35,7 @@ struct EXEDIT_MEMORY_OFFSET {
 	static const DWORD TraScript_ProcessingObjectIndex = 0x1B2B04;
 	static const DWORD ScriptProcessingFilter = 0x1B2B10;
 	static const DWORD LuaState            = 0x1BACA8;
+	static const DWORD ObjectTable         = 0x1E0FA4;
 	static const DWORD ObjectExtraData     = 0x1E0FA8;
 	static const DWORD ObjectBufferInfo    = 0x1E0F9C;
 	static const DWORD CameraZBuffer       = 0x1EC7AC;
@@ -79,6 +80,7 @@ def(int*,             TraScript_ProcessingTrackBarIndex);
 def(int*,             TraScript_ProcessingObjectIndex);
 def(EXEDIT_FILTER*,   ScriptProcessingFilter);
 // def(lua_State*,       LuaState);
+def(EXEDIT_OBJECT**,  ObjectTable);
 def(void**,           ObjectExtraData);
 def(OBJECT_BUFFER_INFO*,  ObjectBufferInfo);
 def(CAMERA_ZBUFFER**, CameraZBuffer);
