@@ -5,13 +5,17 @@
 #include "auls/yulib/extra.h"
 #include "proc.h"
 
+#ifdef _DEBUG
+#include "dbgstream/dbgstream.h"
+#endif
+
 
 #ifdef _DEBUG
 #define PLUGIN_NAME TEXT("真・グループ制御（Debug）")
 #else
 #define PLUGIN_NAME TEXT("真・グループ制御")
 #endif
-#define PLUGIN_VERSION TEXT("1.0.1")
+#define PLUGIN_VERSION TEXT("1.0.0")
 
 
 void show_error(LPCTSTR text) {
@@ -25,9 +29,8 @@ void show_error(LPCTSTR text) {
 
 #ifdef _DEBUG
 
-#include "dbgstream/dbgstream.h"
-
 void _DEBUG_FUNC() {
+	proc::debug();
 	cdbg << std::flush;
 }
 
