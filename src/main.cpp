@@ -4,19 +4,23 @@
 #include "auls/memref.h"
 #include "auls/yulib/extra.h"
 #include "proc.h"
+#include "gui.h"
 
 #ifdef _DEBUG
 #include "dbgstream/dbgstream.h"
 #endif
 
 
-#ifdef _DEBUG
-#define PLUGIN_NAME TEXT("真・グループ制御（Debug）")
-#else
 #define PLUGIN_NAME TEXT("真・グループ制御")
+#ifdef _DEBUG
+#define PLUGIN_NAME_SUFFIX TEXT("（Debug）")
+#else
+#define PLUGIN_NAME_SUFFIX TEXT("")
 #endif
-#define PLUGIN_VERSION TEXT("1.0.0")
+#define PLUGIN_VERSION TEXT("1.1.0")
 
+
+FILTER* g_fp = nullptr;
 
 void show_error(LPCTSTR text) {
 	MessageBox(NULL, text, PLUGIN_NAME, MB_OK | MB_ICONERROR);
@@ -31,20 +35,37 @@ void show_error(LPCTSTR text) {
 
 void _DEBUG_FUNC() {
 	proc::debug();
+	gui::debug();
 	cdbg << std::flush;
 }
 
+#endif
+
+
+//================================
+//  イベント処理
+//================================
+
 HOOKED(BOOL, , exedit_WndProc, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, void* editp, void* fp) {
+	static bool pre_active = false;
+	const bool active = g_fp->exfunc->is_filter_active(g_fp);
+	if (active != pre_active) {
+		// フィルタの有効/無効が変更された際、拡張編集のタイムラインを変更する
+		gui::set_gui_replacement_enabled(active);
+		gui::rerender_timeline();
+	}
+	pre_active = active;
+
+#ifdef _DEBUG
 	// F5キーでデバッグ動作
 	if ((message == WM_KEYUP || message == WM_FILTER_MAIN_KEY_UP) && wparam == VK_F5) {
 		_DEBUG_FUNC();
 		return FALSE;
 	}
+#endif
 
 	return exedit_WndProc_original(hwnd, message, wparam, lparam, editp, fp);
 }
-
-#endif
 
 
 //================================
@@ -52,6 +73,7 @@ HOOKED(BOOL, , exedit_WndProc, HWND hwnd, UINT message, WPARAM wparam, LPARAM lp
 //================================
 
 BOOL func_init(FILTER* fp) {
+	g_fp = fp;
 	auto exedit = auls::Exedit_GetFilter(fp);
 	if (!exedit) {
 		show_error(TEXT("拡張編集が見つかりませんでした。"));
@@ -62,11 +84,10 @@ BOOL func_init(FILTER* fp) {
 	else {
 		auls::Memref_Init((FILTER*)fp);
 		proc::init(fp, exedit);
+		gui::init(fp, exedit);
 
-#ifdef _DEBUG
 		exedit_WndProc_original = exedit->func_WndProc;
 		exedit->func_WndProc = exedit_WndProc_hooked;
-#endif
 	}
 
 	return TRUE;
@@ -81,7 +102,7 @@ FILTER_DLL filter = {
 	.flag = FILTER_FLAG_NO_CONFIG | FILTER_FLAG_EX_INFORMATION,
 	.name = (TCHAR*)PLUGIN_NAME,
 	.func_init = func_init,
-	.information = (TCHAR*)(PLUGIN_NAME TEXT(" v") PLUGIN_VERSION)
+	.information = (TCHAR*)(PLUGIN_NAME PLUGIN_NAME_SUFFIX TEXT(" v") PLUGIN_VERSION)
 };
 
 EXTERN_C __declspec(dllexport) FILTER_DLL* __stdcall GetFilterTable(void) {
