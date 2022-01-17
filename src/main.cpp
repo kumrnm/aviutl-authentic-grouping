@@ -47,14 +47,13 @@ void _DEBUG_FUNC() {
 //================================
 
 HOOKED(BOOL, , exedit_WndProc, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, void* editp, void* fp) {
-	static bool pre_active = false;
-	const bool active = g_fp->exfunc->is_filter_active(g_fp);
-	if (active != pre_active) {
-		// フィルタの有効/無効が変更された際、拡張編集のタイムラインを変更する
-		gui::set_gui_replacement_enabled(active);
-		gui::rerender_timeline();
+	// 真・グループ制御の有効/無効が変更された際、拡張編集のタイムラインを再描画する
+	if (g_fp != nullptr) {
+		static bool pre_active = false;
+		const bool active = g_fp->exfunc->is_filter_active(g_fp);
+		if (active != pre_active) gui::rerender_timeline();
+		pre_active = active;
 	}
-	pre_active = active;
 
 #ifdef _DEBUG
 	// F5キーでデバッグ動作
