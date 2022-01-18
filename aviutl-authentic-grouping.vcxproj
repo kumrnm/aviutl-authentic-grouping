@@ -107,8 +107,11 @@
     <ClCompile Include="src\auls\memref.cpp" />
     <ClCompile Include="src\auls\yulib\extra.cpp" />
     <ClCompile Include="src\dbgstream\dbgstream.cpp" />
+    <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\proc.cpp" />
+    <ClCompile Include="src\util.cpp" />
+    <ClCompile Include="src\win32_function_injection\win32_function_injection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\main.def" />
@@ -128,8 +131,10 @@
     <ClInclude Include="src\auls\yulib\path.h" />
     <ClInclude Include="src\auls\yulib\string.h" />
     <ClInclude Include="src\auls\yulib\window.h" />
-    <ClInclude Include="src\debug_util.h" />
+    <ClInclude Include="src\gui.h" />
     <ClInclude Include="src\proc.h" />
+    <ClInclude Include="src\util.h" />
+    <ClInclude Include="src\win32_function_injection\win32_function_injection.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\auls\auls.txt" />
