@@ -35,28 +35,16 @@ namespace win32_function_injection {
 		FUNCTION_INJECTION_INFO info;
 
 		// バッファ領域を確保
-		unsigned char* machine_code = (unsigned char*)VirtualAlloc(
+		void* buffer = VirtualAlloc(
 			NULL,
-			sizeof(machine_code_template),
+			sizeof(machine_code_template) + sizeof(REGISTER) + sizeof(void*),
 			MEM_COMMIT | MEM_RESERVE,
 			PAGE_EXECUTE_READWRITE
 		);
-		REGISTER* register_buffer_ptr = (REGISTER*)VirtualAlloc(
-			NULL,
-			sizeof(REGISTER),
-			MEM_COMMIT | MEM_RESERVE,
-			PAGE_EXECUTE_READWRITE
-		);
-		void** return_position_buffer_ptr = (void**)VirtualAlloc(
-			NULL,
-			sizeof(void*),
-			MEM_COMMIT | MEM_RESERVE,
-			PAGE_EXECUTE_READWRITE
-		);
-
-		if (machine_code == nullptr || register_buffer_ptr == nullptr || return_position_buffer_ptr == nullptr) {
-			return info;
-		}
+		if (buffer == nullptr) return info;
+		unsigned char* machine_code = (unsigned char*)buffer;
+		REGISTER* register_buffer_ptr = (REGISTER*)((unsigned int)machine_code + sizeof(machine_code_template));
+		void** return_position_buffer_ptr = (void**)((unsigned int)register_buffer_ptr + sizeof(REGISTER));
 
 		// 機械語コードを生成
 		std::memcpy(machine_code, machine_code_template, sizeof(machine_code_template));
