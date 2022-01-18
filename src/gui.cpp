@@ -1,5 +1,6 @@
 #include "aviutl_plugin_sdk/filter.h"
 #include "win32_function_injection/win32_function_injection.h"
+#include "util.h"
 
 #ifdef _DEBUG
 #include "dbgstream/dbgstream.h"
@@ -8,7 +9,6 @@
 
 namespace gui {
 
-	FILTER* g_fp = nullptr;
 	FILTER* g_exedit = nullptr;
 	DWORD exedit_base;
 
@@ -45,7 +45,7 @@ namespace gui {
 
 		bool ignore = false;
 
-		if (g_fp != nullptr && g_fp->exfunc->is_filter_active(g_fp) && (group_type_bit & 0x2)) {
+		if (util::is_filter_active() && (group_type_bit & 0x2)) {
 			// 描画対象のレイヤーより上で終端するグループ制御については、存在を無視する
 			if (group_end_layer < layer) {
 				ignore = true;
@@ -72,8 +72,7 @@ namespace gui {
 	//  初期化処理
 	//================================
 
-	void init(FILTER* fp, FILTER* exedit) {
-		g_fp = fp;
+	void init(FILTER* exedit) {
 		g_exedit = exedit;
 		exedit_base = (DWORD)exedit->dll_hinst;
 

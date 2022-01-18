@@ -5,8 +5,19 @@
 
 namespace util {
 
+	FILTER* g_fp = nullptr;
+
+	void init(FILTER* fp) {
+		g_fp = fp;
+		auls::Memref_Init(fp);
+	}
+
+	bool is_filter_active() {
+		return g_fp != nullptr && g_fp->exfunc->is_filter_active(g_fp);
+	}
+
 	auls::EXEDIT_OBJECT* get_object_by_id(const int id) {
-		return *auls::Exedit_ObjectTable() + id;
+		return auls::Exedit_ObjectBufferInfo()->data + id;
 	}
 
 	auls::EXEDIT_OBJECT* midpoint_leader(auls::EXEDIT_OBJECT* obj) {
@@ -20,7 +31,7 @@ namespace util {
 	// グループの制御レイヤー数を取得する
 	int get_group_control_range(auls::EXEDIT_OBJECT* group_obj) {
 		group_obj = midpoint_leader(group_obj);
-		int res = *((unsigned char*)(*auls::Exedit_ObjectExtraData()) + group_obj->exdata_offset + 4);
+		int res = *((unsigned char*)auls::Exedit_ObjectBufferInfo()->exdata + group_obj->exdata_offset + 4);
 		if (res == 0) res = LAYER_COUNT;
 		return res;
 	}
@@ -44,19 +55,11 @@ namespace util {
 
 	// CALL命令（e8）の呼び出し先を書き換え、書き換え前のアドレスを返す。
 	DWORD rewrite_call_target(const DWORD call_operation_address, const void* target_function) {
-		// 書き換え前のアドレスを絶対アドレスに変換して保持
 		const DWORD oldFunction = *(DWORD*)(call_operation_address + 1) + (call_operation_address + 5);
-
-		// 保護状態変更
-		DWORD dwOldProtect;
-		VirtualProtect((LPVOID)call_operation_address, 5, PAGE_READWRITE, &dwOldProtect);
-
-		// 書き換え
+		DWORD oldProtect;
+		VirtualProtect((LPVOID)call_operation_address, 5, PAGE_READWRITE, &oldProtect);
 		*(DWORD*)(call_operation_address + 1) = (DWORD)target_function - (call_operation_address + 5);
-
-		// 保護状態復元
-		VirtualProtect((LPVOID)call_operation_address, 5, dwOldProtect, &dwOldProtect);
-
+		VirtualProtect((LPVOID)call_operation_address, 5, oldProtect, &oldProtect);
 		return oldFunction;
 	}
 

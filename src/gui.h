@@ -4,7 +4,7 @@
 
 namespace gui {
 
-	void init(FILTER* fp, FILTER* exedit);
+	void init(FILTER* exedit);
 	bool rerender_timeline();
 
 #ifdef _DEBUG

@@ -381,19 +381,6 @@ struct CACHE_BUFFER {
 	                // *lua_xxxx として格納される
 };
 
-struct DISPLAY_RECT {
-	int x, y, width, height;
-	int unknown0;
-	int unknown1;
-	int unknown2;
-	int object_id;
-	int type; // 0=矩形, 1=直線（width, heightは他方の端点の座標）
-	int handle_target; // 30000=両端, 30001=始点, 30002=終点, 0=なし
-	int unknown3;
-	int unknown4;
-	int unknown5;
-};
-
 
 
 

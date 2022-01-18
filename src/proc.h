@@ -4,7 +4,7 @@
 
 namespace proc{
 
-	void init(FILTER* fp, FILTER* exedit);
+	void init(FILTER* exedit);
 
 #ifdef _DEBUG
 	void debug();

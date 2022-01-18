@@ -1,7 +1,6 @@
 #include "aviutl_plugin_sdk/filter.h"
 #include "tchar.h"
 #include "util.h"
-#include "auls/yulib/extra.h"
 #include <vector>
 #include <stack>
 
@@ -11,15 +10,12 @@
 
 namespace proc {
 
-	FILTER* g_fp = nullptr;
-
-
 	//================================
 	//  拡張編集の内部処理への干渉
 	//================================
 
 	HOOKED(void, , FireFilterUpdateEvent, int _arg0, int _arg1, void* pt, char _arg3) {
-		if (g_fp != nullptr && g_fp->exfunc->is_filter_active(g_fp)) {
+		if (util::is_filter_active()) {
 			// スタックから内部描画関数のローカル変数にアクセス
 			const auto layer_object = (auls::EXEDIT_OBJECT**)((DWORD)pt + 0x4d0);
 			const auto layer_parent_object = (auls::EXEDIT_OBJECT**)((DWORD)pt + 0x1b0);
@@ -60,8 +56,7 @@ namespace proc {
 	//  初期化処理
 	//================================
 
-	void init(FILTER* fp, FILTER* exedit) {
-		g_fp = fp;
+	void init(FILTER* exedit) {
 		const DWORD exedit_base = (DWORD)exedit->dll_hinst;
 		FireFilterUpdateEvent_original = (t_FireFilterUpdateEvent)util::rewrite_call_target(exedit_base + 0x48e99, FireFilterUpdateEvent_hooked);
 	}
